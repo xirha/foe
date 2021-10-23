@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "inlineSourceMap": true,
+        "target": "ES2015",
+        "outDir": "dist",
+        "allowJs": true,
+        "declaration": true,
+        "baseUrl": "./"
+    },
+    "include": ["foe_agent.ts", "module/*.ts"]
+}

@@ -1,0 +1,33 @@
+{
+    "sk3": {
+        "accept": "*/*",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "sk-SK,sk;q=0.9",
+        "content-type": "application/json",
+        "cookie": {
+            "instanceId": "k2grxcj6g",
+            "metricsUvId": "5dc21395-90d5-44a8-83c2-403c3516618e",
+            "cid": "1149409446",
+            "_fbp": "fb.1.1634134715118.1879957371",
+            "ig_conv_last_site": "https://sk3.forgeofempires.com/game/index",
+            "_uetsid": "74614ac02c3011ecb94ab75db8d4015d",
+            "_uetvid": "746166c02c3011ec8d53515be23a7881"
+        },
+        "origin": "https://sk3.forgeofempires.com",
+        "referer": "https://sk3.forgeofempires.com/game/index?",
+        "sec-ch-ua": "\"Chromium\";v=\"92\", \" Not A;Brand\";v=\"99\", \"Google Chrome\";v=\"92\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "same-origin",
+        "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36"
+    },
+    "sk4": {
+        "base_url": "https://sk4.forgeofempires.com",
+        "cookies": {
+            "sid": "DdZ3Iy4YS4w82uY319IK_1eksgJsdkxKQHJrLEAW"
+        },
+        "session": "B4x0Ge4LooBqn0rkX8wIYjsZ",
+        "secret": "kY4ny9bVovzqSJ8cQF/v3hm1kqdbXcj5h0sKRI57YOChHCaispJ3XrbBdpc05cIGXSC9lpH4jy1ybI95hlo82w=="
+    }
+}

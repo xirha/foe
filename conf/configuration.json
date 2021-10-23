@@ -1,0 +1,19 @@
+{
+    "sk3": {
+        "base_url": "https://sk3.forgeofempires.com",
+        "cookies": {
+            "sid": "_MrIW8U94X9j4y1vHWEH6hqME5SDycXLvwzmkG9r"
+        },
+        "session": "T5swzBFNWFk6suM8lpBdz6M5",
+        "secret": "+pYywdEUVtcIaXeO4onrkfnM5HhxCzysyIIgvrsUcbbuYBsV8TT4jZmVK9DBbK4vERHRi6hKaNXJW62L4qbD2g==",
+        "version": "1.215"
+    },
+    "sk4": {
+        "base_url": "https://sk4.forgeofempires.com",
+        "cookies": {
+            "sid": "DdZ3Iy4YS4w82uY319IK_1eksgJsdkxKQHJrLEAW"
+        },
+        "session": "B4x0Ge4LooBqn0rkX8wIYjsZ",
+        "secret": "+pYywdEUVtcIaXeO4onrkfnM5HhxCzysyIIgvrsUcbbuYBsV8TT4jZmVK9DBbK4vERHRi6hKaNXJW62L4qbD2g=="
+    }
+}
