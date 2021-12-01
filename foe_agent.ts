@@ -10,11 +10,11 @@ import { GbModule } from "./module/great_buildings";
 import { UtilsModule } from "./module/utils";
 
 export interface FoeRequestBody {
-    __class__: string,
-    requestData: Array<any>,
+    __class__?: string,
+    requestData?: Array<any>,
     requestClass: string,
     requestMethod: string,
-    requestId: number
+    requestId?: number
 }
 
 export interface FoeResponseBody {
@@ -215,6 +215,10 @@ export class FoeAgent {
                 requestMethod: "getConstruction",
                 requestId: 16
             };
+    }
+
+    extractResponseData(request: FoeRequestBody, response: Array<FoeResponseBody>): any {
+        return response.find(subResp => {return subResp.requestClass === request.requestClass && subResp.requestMethod == request.requestMethod}).responseData;
     }
 
 }

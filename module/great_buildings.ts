@@ -9,10 +9,15 @@ const   _       = require('underscore'),
 
 import { GreatBuilding, FoeAgent, Player, FoeResponseBody } from "../foe_agent";
 import { FoeModule } from "./foe_module";
+import * as readline from 'readline'
 
 
 export class GbModule extends FoeModule {
     _result: Array<any> = new Array();
+
+    playerCounter: number = 0;
+    playersLength: number = 0;
+    buildingCounter: number = 0;
 
     constructor(parent: FoeAgent) {
         super(parent);
@@ -36,7 +41,8 @@ export class GbModule extends FoeModule {
 
         let players = this.sortByGbCounter(this.parent.model.players);
 
-        logger.info("Scanning list of " + Object.keys(players).length + " players");
+        this.playersLength = Object.keys(players).length;
+        logger.info("Scanning list of " + this.playersLength + " players");
 
         let skipping = false;
         if (argv["start-from"]) {
@@ -45,23 +51,8 @@ export class GbModule extends FoeModule {
         }
 
         for (const name of Object.keys(players)) {
-            if(!players[name].active){
-                logger.warn("Skip player " + name + ": player inactive");
-                continue;
-            }
-
-            if(players[name].vip){
-                logger.warn("Skip player " + name + ": player VIP");
-                continue;
-            }
-
-            if(players[name].member_of == "Guild members"){
-                logger.warn("Skip player " + name + ": Guild player");
-                continue;
-            }
-            
             if (skipping && name != argv["start-from"]) {
-                logger.warn("Skip player " + name + ": argv['start-from'] other");
+                logger.debug("Skip player " + name + ": argv['start-from'] other");
                 continue;
             }
 
@@ -76,35 +67,71 @@ export class GbModule extends FoeModule {
         this.printResult();
     }
 
+    isIterable(obj: Object) {
+        // checks for null and undefined
+        if (obj == null) {
+          return false;
+        }
+        return typeof obj[Symbol.iterator] === 'function';
+    }
+
+    buildingUnchanged(name: string, building: GreatBuilding): boolean{
+        if(!("buildings" in this.parent.model.players[name]))
+            return false;
+
+        let history: GreatBuilding = this.parent.model.players[name].buildings.filter((b: GreatBuilding) => b.entity_id == building.entity_id)[0];
+
+        if(history == null || history == undefined)
+            return false;
+
+        // console.log(history);
+        // console.log(building);
+
+        // Fix, not present = 0
+        if(!("current_progress" in building))
+            building.current_progress = 0;
+
+        return history.level == building.level && history.current_progress == building.current_progress;
+    }
+
     async scanPlayer(player: Player): Promise<void> {
+        this.playerCounter++;
+
         let self = this;
-        logger.info("Scanning player #" + player.rank + " " + player.name + " (" + player.member_of + ", gb_counter: " + player.gb_counter + ")");
+        this.printStatusLine(player, null);
 
         return new Promise(async (resolve, reject) => {
-
-            let response: Array<FoeResponseBody> = await self.parent.foeRequest(self.parent.request_gb_list(player));              
-            let buildings: Array<GreatBuilding> = response[1].responseData;
+            let requestData = self.parent.request_gb_list(player);
+            let response: Array<FoeResponseBody> = await self.parent.foeRequest(requestData);              
+            let buildings: Array<GreatBuilding> = self.parent.extractResponseData(requestData, response);
 
             for (const building of buildings) {
-                await self.parent.sleep();
-                await self.scanBuilding(player, building);
+                if(!self.buildingUnchanged(player.name, building)){
+                    await self.scanBuilding(player, building);
+                    await self.parent.sleep();
+                }
             }
 
-            logger.debug("Player " + player.name + " scanned, continue\n");
+            self.updatePlayer(player.name, buildings);
             return resolve();
         });
     }
 
+
+
     async scanBuilding(player: Player, building: GreatBuilding): Promise<void> {
         let self = this;
-        logger.debug(player.name + ": Scanning building " + building.name);
+        this.buildingCounter++;
+        this.printStatusLine(player, building.name);
 
         return new Promise(async (resolve, reject) => {
+            let requestData = self.parent.request_gb_detail(player, building);
+            let response: Array<FoeResponseBody> = await self.parent.foeRequest(requestData);
 
-            let response: Array<FoeResponseBody> = await self.parent.foeRequest(self.parent.request_gb_detail(player, building));
+            // console.log(response);
 
-            building.state = response[1].responseData;
-            building.rankings = response[2].responseData.rankings;
+            building.state = self.parent.extractResponseData({requestMethod: "updateEntity", requestClass: "CityMapService"}, response);
+            building.rankings = self.parent.extractResponseData(requestData, response).rankings;
 
             self.calculateProfit(player, building);
 
@@ -127,6 +154,8 @@ export class GbModule extends FoeModule {
             building.rankings.forEach((r) => {
                 self.calculatePosition(r, building, player, already_contributed);
             });
+        } else {
+            logger.error("Rankings: " + building.rankings);
         }
     }
 
@@ -155,8 +184,6 @@ export class GbModule extends FoeModule {
                 if(already_contributed)
                     return;
            
-                logger.warn(colors.bold(colors.green(player.name) + " (" + player.rank + ")" + " -> " + building.name + ":\t Position " + r.rank + ": \t" + colors.yellow.bold(points_to_lock) + " / " + target
-                    + "\t" + colors.green.bold('+' + profit) + ", will remain: " + (remaining - points_to_lock)));
                 this.updatePlayerGbCounter(player.name);
                 this.savePosition({
                     player_name: player.name,
@@ -177,26 +204,61 @@ export class GbModule extends FoeModule {
     sortByGbCounter(players: any) {
         const order: Array<Player> = [], res = {};
         for(const name of Object.keys(players)){
-            order.push(players[name]);
+            // Filter players
+            if(this.playerScannable(name))
+                order.push(players[name]);
         }
-        console.log(order);
+        // console.log(order);
 
         order.sort((a: Player, b: Player) => {
             return b.gb_counter - a.gb_counter;
         });
-        console.log(order);
+        // console.log(order);
         
         for(const p of order){
             res[p.name] = players[p.name];
         }
-        console.log(res);
+        // console.log(res);
 
         return res;
     }
 
+    playerScannable(name: any): boolean{
+        let py = this.parent.model.players as Object;
+        if(!py[name].active){
+            logger.debug("Skip player " + name + ": player inactive");
+            return false;
+        }
+
+        if(py[name].vip){
+            logger.debug("Skip player " + name + ": player VIP");
+            return false;
+        }
+
+        if(py[name].member_of == "Guild members" && this.parent.world == "sk3"){
+            logger.debug("Skip player " + name + ": Guild player");
+            return false;
+        }
+
+        return true;
+    }
+
     savePosition(position: any){
         this._result.push(position);
+        this.printResult([position]);
         this.saveResult();
+    }
+
+    updatePlayer(name: string, buildings: Array<GreatBuilding>){
+        this.parent.model.players[name].buildings = buildings.map(b => new Object({
+                entity_id: b.entity_id,
+                name: b.name,
+                level: b.level,
+                current_progress: b.current_progress
+            })
+        );
+
+        this.parent.saveModel();
     }
 
     updatePlayerGbCounter(name: string){
@@ -205,31 +267,42 @@ export class GbModule extends FoeModule {
         } else {
             this.parent.model.players[name].gb_counter = 1;
         }
-        this.parent.saveModel();
     }
     
     saveResult(){
         fs.writeFileSync("conf/" + this.parent.world + ".result.json", JSON.stringify(this._result, null, 2));
     }
 
-    printResult() {
-        this._result.sort((a, b) => (b.ratio > a.ratio) ? 1 : -1);
+    printResult(line: any = null) {
+        if(line == null)
+            this._result.sort((a, b) => (b.ratio > a.ratio) ? 1 : -1);
 
-        var columns = columnify(this._result, {minWidth: 5, config: {
+        var columns = columnify(line || this._result, {minWidth: 5, config: {
             points_to_lock: {
-                dataTransform: function(data) {
+                dataTransform: function(data: number) {
                     return colors.yellow.bold(data);
                 },
                 align: "right"
             },
             profit: {
-                dataTransform: function(data) {
+                dataTransform: function(data: number) {
                     return colors.green.bold('+' + data);
                 },
                 align: "right"
             }
         }});
 
+        console.log("\n");
         console.log(columns)
+        console.log("\n");
+
+        if(line == null)
+            logger.info("Scanned " + this.playerCounter + " players and " + this.buildingCounter + " buildings.");
+    }
+
+    printStatusLine(player: Player, buildingName: string){
+        readline.clearLine(process.stdout, 0);
+        readline.cursorTo(process.stdout, 0);
+        process.stdout.write(`\r Scanning player '${player.name}' #${player.rank}/${player.member_of}, counter = ${player.gb_counter} -- (${this.playerCounter}/${this.playersLength}) -- building '${buildingName}'`);
     }
 }

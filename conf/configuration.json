@@ -2,18 +2,19 @@
     "sk3": {
         "base_url": "https://sk3.forgeofempires.com",
         "cookies": {
-            "sid": "_MrIW8U94X9j4y1vHWEH6hqME5SDycXLvwzmkG9r"
+            "sid": "JRzK_nK4gobwJq1QdRVN_6qxe3r4PCMxw5sNVbWE"	
         },
-        "session": "T5swzBFNWFk6suM8lpBdz6M5",
-        "secret": "+pYywdEUVtcIaXeO4onrkfnM5HhxCzysyIIgvrsUcbbuYBsV8TT4jZmVK9DBbK4vERHRi6hKaNXJW62L4qbD2g==",
-        "version": "1.215"
+        "session": "rNMNqhM1MumZZW-8R5UXX53T",
+        "secret": "d3SyKkX7UZIjCms7LelK/UrOIrEZsLv+Z1DGNTAKbWqm3aTrAkyxMYR2P3IDmYchr3LRchFpsEF0T1kykaBCpg==",
+        "version": "1.218"
     },
     "sk4": {
         "base_url": "https://sk4.forgeofempires.com",
         "cookies": {
-            "sid": "DdZ3Iy4YS4w82uY319IK_1eksgJsdkxKQHJrLEAW"
+            "sid": "E3glsC2K-5xyWnX78TdV2mpeudaeH-6bF2biTBG1"
         },
-        "session": "B4x0Ge4LooBqn0rkX8wIYjsZ",
-        "secret": "+pYywdEUVtcIaXeO4onrkfnM5HhxCzysyIIgvrsUcbbuYBsV8TT4jZmVK9DBbK4vERHRi6hKaNXJW62L4qbD2g=="
+        "session": "1GWkQYAjEpbsW2YoibILhHHp",
+        "secret": "d3SyKkX7UZIjCms7LelK/UrOIrEZsLv+Z1DGNTAKbWqm3aTrAkyxMYR2P3IDmYchr3LRchFpsEF0T1kykaBCpg==",
+        "version": "1.218"
     }
 }

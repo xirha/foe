@@ -35,25 +35,29 @@ export class UtilsModule extends FoeModule {
         
         for(let entry of this._har.log.entries){
             if(entry.request.url.includes(JSON_REQUEST_REGEX)){
-                // logger.info("URL: " + entry.request.url);                
-                let req = JSON.parse(entry.request.postData.text);
-                let rsp = JSON.parse(entry.response.content.text);
-
-                for(let rq of rsp){
-                    logger.debug("Class: '" + rq.requestClass + "', requestMethod: '" + rq.requestMethod + "'");
-
-                    if(rq.requestClass == "StartupService" && rq.requestMethod == "getData"){
-                        for (let player of rq.responseData.socialbar_list){
-                            this.processPlayer(player);
+                try {
+                    // logger.info("URL: " + entry.request.url);                
+                    let req = JSON.parse(entry.request.postData.text);
+                    let rsp = JSON.parse(entry.response.content.text);
+    
+                    for(let rq of rsp){
+                        logger.debug("Class: '" + rq.requestClass + "', requestMethod: '" + rq.requestMethod + "'");
+    
+                        if(rq.requestClass == "StartupService" && rq.requestMethod == "getData"){
+                            for (let player of rq.responseData.socialbar_list){
+                                this.processPlayer(player);
+                            }
                         }
-                    }
-
-                    if(rq.requestClass == "OtherPlayerService" && rq.requestMethod == "getNeighborList"){
-                        for (let player of rq.responseData){
-                            this.processPlayer(player);
+    
+                        if(rq.requestClass == "OtherPlayerService" && rq.requestMethod == "getNeighborList"){
+                            for (let player of rq.responseData){
+                                this.processPlayer(player);
+                            }
                         }
+    
                     }
-
+                } catch(e) {
+                    logger.error(e.msg);
                 }
             }
         }

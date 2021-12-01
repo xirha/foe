@@ -1,2 +1,5 @@
 *.result.json
 *.har
+
+*.model.json
+test.json
