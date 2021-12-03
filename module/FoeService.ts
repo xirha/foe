@@ -2,7 +2,7 @@ import { FoeAgent } from "../foe_agent";
 
 
 
-export class FoeModule {
+export class FoeService {
     parent: FoeAgent;
 
     constructor(parent: FoeAgent){

@@ -8,11 +8,11 @@ logger  = require('node-logger')("Utils")
 ;
 
 import { GreatBuilding, FoeAgent, Player, FoeResponseBody } from "../foe_agent";
-import { FoeModule } from "./foe_module";
+import { FoeService } from "./FoeService";
 
 const JSON_REQUEST_REGEX = "json?h=";
 
-export class UtilsModule extends FoeModule {
+export class UtilsModule extends FoeService {
     _har: any;
     _model: any;
 

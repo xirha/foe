@@ -5,8 +5,9 @@ const logger  = require('node-logger')("Foe-Agent");
 const request = require('request');
 const zlib = require('zlib');
 
-import { FoeModule } from "./module/foe_module";
-import { GbModule } from "./module/great_buildings";
+import { CityService } from "./module/CityService";
+import { FoeService } from "./module/FoeService";
+import { GbModule } from "./module/GbService";
 import { UtilsModule } from "./module/utils";
 
 export interface FoeRequestBody {
@@ -55,7 +56,7 @@ export class FoeAgent {
 
     requestId: number;
     req: any;
-    modules: Map<String, FoeModule> = new Map();
+    modules: Map<String, FoeService> = new Map();
 
     constructor() {
         let self = this;
@@ -78,11 +79,12 @@ export class FoeAgent {
             time : true
         });
 
-        this.requestId = Math.round(this.getRandomArbitrary(30, 50));
+        this.requestId = Math.round(this.getRandomArbitrary(10, 30));
 
 
         this.modules["gb"] = new GbModule(this);
         this.modules["util"] = new UtilsModule(this);
+        this.modules["city"] = new CityService(this);
         this.init();
     }
 
@@ -97,6 +99,9 @@ export class FoeAgent {
                 break;
             case "har":
                 this.modules["util"].processHarFile();
+                break;
+            case "city":
+                this.modules["city"].start();
                 break;
         }
     }
@@ -136,19 +141,19 @@ export class FoeAgent {
         return copy;
     }
 
-    foeRequest(body: FoeRequestBody): Promise<Array<FoeResponseBody>> {
+    async serverRequest(body: FoeRequestBody): Promise<Array<FoeResponseBody>> {
         let self = this;
         let _url = "/game/json?h=" + self.configuration.session;
 
         let _options = {
             url: _url, 
             headers: self._headers([body], _url), 
-            body: [ body ], 
+            body: [body], 
             encoding: null
         }
 
         // console.log(_options);
-
+        await self.sleep();
         return new Promise((resolve, reject) => {
             self.req.post(_options, function (err: any, res: any) {
                 logger.logRequest(this, res, err);
@@ -197,24 +202,14 @@ export class FoeAgent {
         }
     }
 
-    request_gb_list(player: Player): FoeRequestBody {
+    serverRequestBody(service: string, method: string, data: Array<any> = []): FoeRequestBody {
         return {
-                __class__: "ServerRequest",
-                requestData: [player.player_id],
-                requestClass: "GreatBuildingsService",
-                requestMethod: "getOtherPlayerOverview",
-                requestId: 16
-            };
-    }
-
-    request_gb_detail(player: Player, building: GreatBuilding): FoeRequestBody {
-        return {
-                __class__: "ServerRequest",
-                requestData: [building.entity_id, player.player_id],
-                requestClass: "GreatBuildingsService",
-                requestMethod: "getConstruction",
-                requestId: 16
-            };
+            __class__: "ServerRequest",
+            requestData: data,
+            requestClass: service,
+            requestMethod: method,
+            requestId: 16
+        };
     }
 
     extractResponseData(request: FoeRequestBody, response: Array<FoeResponseBody>): any {

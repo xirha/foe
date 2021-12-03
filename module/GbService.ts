@@ -8,11 +8,11 @@ const   _       = require('underscore'),
 ;
 
 import { GreatBuilding, FoeAgent, Player, FoeResponseBody } from "../foe_agent";
-import { FoeModule } from "./foe_module";
+import { FoeService } from "./FoeService";
 import * as readline from 'readline'
 
 
-export class GbModule extends FoeModule {
+export class GbModule extends FoeService {
     _result: Array<any> = new Array();
 
     playerCounter: number = 0;
@@ -60,8 +60,7 @@ export class GbModule extends FoeModule {
             let player = players[name];
             player.name = name;
 
-            await self.scanPlayer(player);
-            await self.parent.sleep();            
+            await self.scanPlayer(player);        
         };
 
         this.printResult();
@@ -101,14 +100,14 @@ export class GbModule extends FoeModule {
         this.printStatusLine(player, null);
 
         return new Promise(async (resolve, reject) => {
-            let requestData = self.parent.request_gb_list(player);
-            let response: Array<FoeResponseBody> = await self.parent.foeRequest(requestData);              
+            let requestData = self.parent.serverRequestBody("GreatBuildingsService", "getOtherPlayerOverview", [player.player_id]);
+
+            let response: Array<FoeResponseBody> = await self.parent.serverRequest(requestData);              
             let buildings: Array<GreatBuilding> = self.parent.extractResponseData(requestData, response);
 
             for (const building of buildings) {
                 if(!self.buildingUnchanged(player.name, building)){
                     await self.scanBuilding(player, building);
-                    await self.parent.sleep();
                 }
             }
 
@@ -125,8 +124,8 @@ export class GbModule extends FoeModule {
         this.printStatusLine(player, building.name);
 
         return new Promise(async (resolve, reject) => {
-            let requestData = self.parent.request_gb_detail(player, building);
-            let response: Array<FoeResponseBody> = await self.parent.foeRequest(requestData);
+            let requestData = self.parent.serverRequestBody("GreatBuildingsService", "getConstruction", [building.entity_id, player.player_id]);
+            let response: Array<FoeResponseBody> = await self.parent.serverRequest(requestData);
 
             // console.log(response);
 
