@@ -31,33 +31,41 @@ export class UtilsModule extends FoeService {
 
         for(let name of Object.keys(this._model.players)){
             this._model.players[name].active = false;
+
+            if(argv["clear"]){
+                delete this._model.players[name].buildings;
+            }
         }
         
         for(let entry of this._har.log.entries){
             if(entry.request.url.includes(JSON_REQUEST_REGEX)){
                 try {
-                    // logger.info("URL: " + entry.request.url);                
+                    // logger.info("URL: " + entry.request.url);
                     let req = JSON.parse(entry.request.postData.text);
                     let rsp = JSON.parse(entry.response.content.text);
     
                     for(let rq of rsp){
                         logger.debug("Class: '" + rq.requestClass + "', requestMethod: '" + rq.requestMethod + "'");
     
-                        if(rq.requestClass == "StartupService" && rq.requestMethod == "getData"){
-                            for (let player of rq.responseData.socialbar_list){
+                        // if(rq.requestClass == "StartupService" && rq.requestMethod == "getData"){
+						// 	logger.info(rq.responseData.neighbours);
+                        //     for (let player of rq.responseData.socialbar_list){
+                        //         this.processPlayer(player);
+                        //     }
+                        // }
+    
+                        if(rq.requestClass == "OtherPlayerService" && rq.requestMethod == "getSocialList"){
+                            for (let player of rq.responseData.neighbours){
                                 this.processPlayer(player);
                             }
-                        }
-    
-                        if(rq.requestClass == "OtherPlayerService" && rq.requestMethod == "getNeighborList"){
-                            for (let player of rq.responseData){
+							for (let player of rq.responseData.friends){
                                 this.processPlayer(player);
                             }
                         }
     
                     }
                 } catch(e) {
-                    logger.error(e.msg);
+                    logger.error(e);
                 }
             }
         }
@@ -69,7 +77,7 @@ export class UtilsModule extends FoeService {
         let res = this._model.players[p.name] || {};
         res.name        = p.name;
         res.rank        = p.rank;
-        res.member_of   = (p.is_friend ? "Friends" : (p.is_guild_member ? "Guild members" : "Neighbors"));
+        res.member_of   = (p.is_guild_member ? "Guild members" : (p.is_friend ? "Friends" : "Neighbors"));
         res.player_id   = p.player_id;
         res.active      = true;
         if(!("gb_counter" in res)){

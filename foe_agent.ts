@@ -5,7 +5,7 @@ const logger  = require('node-logger')("Foe-Agent");
 const request = require('request');
 const zlib = require('zlib');
 
-import { CityService } from "./module/CityService";
+import { City, CityService } from "./module/CityService";
 import { FoeService } from "./module/FoeService";
 import { GbModule } from "./module/GbService";
 import { UtilsModule } from "./module/utils";
@@ -41,8 +41,8 @@ export interface Player {
 export interface GreatBuilding {
     name: string;
     entity_id: number;
-    state: any;
-    rankings: any;
+    state?: any;
+    rankings?: any;
     current_progress: number;
     max_progress: number;
     level: number;
@@ -57,6 +57,8 @@ export class FoeAgent {
     requestId: number;
     req: any;
     modules: Map<String, FoeService> = new Map();
+
+    city: City = new City();
 
     constructor() {
         let self = this;
@@ -75,7 +77,7 @@ export class FoeAgent {
         this.req = request.defaults({
             baseUrl: self.baseUrl,
             json: true,
-            timeout: 15000,
+            timeout: 30000,
             time : true
         });
 
@@ -175,9 +177,9 @@ export class FoeAgent {
 
     get configuration(){ return this._configuration[this.world] }
     get model(){ return this._model }
-    get arcBonus(): number { return this.world == "sk3" ? 1.9 : 1.3 }
-    get minimalProfit(): number { return this.world == "sk3" ? 15 : 0 }
-    get minimalRatio(): number { return this.world == "sk3" ? 0.04 : 0 }
+    get arcBonus(): number { return this.configuration.arc_bonus }
+    get minimalProfit(): number { return this.world == "sk3" ? 20 : 20 }
+    get minimalRatio(): number { return this.world == "sk3" ? 0 : 0.04 }
     get baseUrl() { return "https://" + this.world + ".forgeofempires.com" }
 
     catchRequestError(response: FoeResponseBody){

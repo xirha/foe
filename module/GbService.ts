@@ -42,7 +42,7 @@ export class GbModule extends FoeService {
         let players = this.sortByGbCounter(this.parent.model.players);
 
         this.playersLength = Object.keys(players).length;
-        logger.info("Scanning list of " + this.playersLength + " players");
+        logger.info("Scanning list of " + this.playersLength + " players with arc_bonus: " + this.parent.arcBonus);
 
         let skipping = false;
         if (argv["start-from"]) {
@@ -93,7 +93,7 @@ export class GbModule extends FoeService {
         return history.level == building.level && history.current_progress == building.current_progress;
     }
 
-    async scanPlayer(player: Player): Promise<void> {
+    async scanPlayer(player: Player, fetchOnly: boolean = false): Promise<Array<GreatBuilding> | void> {
         this.playerCounter++;
 
         let self = this;
@@ -104,6 +104,9 @@ export class GbModule extends FoeService {
 
             let response: Array<FoeResponseBody> = await self.parent.serverRequest(requestData);              
             let buildings: Array<GreatBuilding> = self.parent.extractResponseData(requestData, response);
+
+            if(fetchOnly)
+                return resolve(buildings);
 
             for (const building of buildings) {
                 if(!self.buildingUnchanged(player.name, building)){
