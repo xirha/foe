@@ -74,11 +74,11 @@ export class GbModule extends FoeService {
         return typeof obj[Symbol.iterator] === 'function';
     }
 
-    buildingUnchanged(name: string, building: GreatBuilding): boolean{
-        if(!("buildings" in this.parent.model.players[name]))
+    buildingUnchanged(player: Player, building: GreatBuilding): boolean{
+        if(!("buildings" in this.parent.model.players[player.name]))
             return false;
 
-        let history: GreatBuilding = this.parent.model.players[name].buildings.filter((b: GreatBuilding) => b.entity_id == building.entity_id)[0];
+        let history: GreatBuilding = this.parent.model.players[player.name].buildings.filter((b: GreatBuilding) => b.entity_id == building.entity_id)[0];
 
         if(history == null || history == undefined)
             return false;
@@ -90,7 +90,7 @@ export class GbModule extends FoeService {
         if(!("current_progress" in building))
             building.current_progress = 0;
 
-        return history.level == building.level && history.current_progress == building.current_progress;
+        return !history.isProfitable && history.level == building.level && history.current_progress == building.current_progress;
     }
 
     async scanPlayer(player: Player, fetchOnly: boolean = false): Promise<Array<GreatBuilding> | void> {
@@ -109,7 +109,7 @@ export class GbModule extends FoeService {
                 return resolve(buildings);
 
             for (const building of buildings) {
-                if(!self.buildingUnchanged(player.name, building)){
+                if(!self.buildingUnchanged(player, building)){
                     await self.scanBuilding(player, building);
                 }
             }
@@ -131,7 +131,7 @@ export class GbModule extends FoeService {
             let response: Array<FoeResponseBody> = await self.parent.serverRequest(requestData);
 
             // console.log(response);
-
+            building.isProfitable = false; // Reset
             building.state = self.parent.extractResponseData({requestMethod: "updateEntity", requestClass: "CityMapService"}, response);
             building.rankings = self.parent.extractResponseData(requestData, response).rankings;
 
@@ -187,10 +187,12 @@ export class GbModule extends FoeService {
                     return;
            
                 this.updatePlayerGbCounter(player.name);
+                building.isProfitable = true;
                 this.savePosition({
                     player_name: player.name,
                     member_of: player.member_of,
                     player_rank: player.rank,
+                    counter: player.gb_counter,
                     building_name: building.name,
                     rank: r.rank,
                     points_to_lock: points_to_lock,
@@ -256,7 +258,8 @@ export class GbModule extends FoeService {
                 entity_id: b.entity_id,
                 name: b.name,
                 level: b.level,
-                current_progress: b.current_progress
+                current_progress: b.current_progress,
+                isProfitable: b.isProfitable
             })
         );
 

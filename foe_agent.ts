@@ -46,6 +46,7 @@ export interface GreatBuilding {
     current_progress: number;
     max_progress: number;
     level: number;
+    isProfitable: boolean;
 }
 
 export class FoeAgent {
@@ -175,7 +176,12 @@ export class FoeAgent {
         });
     }
 
-    get configuration(){ return this._configuration[this.world] }
+    get configuration(): any{
+        let conf = this._configuration[this.world];
+        conf.secret = this._configuration["secret"];
+        conf.version = this._configuration["version"];
+        return conf;
+    }
     get model(){ return this._model }
     get arcBonus(): number { return this.configuration.arc_bonus }
     get minimalProfit(): number { return this.world == "sk3" ? 20 : 20 }

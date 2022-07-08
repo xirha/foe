@@ -1,24 +1,20 @@
 {
     "sk3": {
-        "base_url": "https://sk3.forgeofempires.com",
         "cookies": {
-            "sid": "j54fUTc2R8dmOdfI-RP-qIW-TZng5_NpIY-iepqI"
+            "sid": "sHLPcRCL2wLgE8lXuX_r5Uc_baxV51rKek2Riqqj"
         },
-        "session": "UrJfe-cmFppocwb8RD0F4rCz",
-        "secret": "ikTMs6KXmPIgazF3nLBmOW/DLOSyGtkQA9epfrN/MrNJIuCnY+kXNmeA9yEGMsGoODPGPG9oOCfxZxmr3RAWWg==",
-        "version": "1.228",
-        "arc_bonus": 1.92
+        "session": "UOzoBJ2jxAyor8opNjr84Zu-",
+        "arc_bonus": 1.93
     },
     "sk4": {
-        "base_url": "https://sk4.forgeofempires.com",
         "cookies": {
-            "sid": "L8-xqMJ52AVK7YEkHjb_ujfilXnYBPv_M5rtZjKI"
+            "sid": "eq8PNXJnI0kS7dWeFzxYVyskO4Tlh2b9fGYF6VDR"
         },
-        "session": "RagLrxVTs1DwzZ8--H9KbdB2",
-        "secret": "ikTMs6KXmPIgazF3nLBmOW/DLOSyGtkQA9epfrN/MrNJIuCnY+kXNmeA9yEGMsGoODPGPG9oOCfxZxmr3RAWWg==",
-        "version": "1.228",
+        "session": "wOPnSR97N2dU802E-XO_ZrKd",
         "arc_bonus": 1.90
     },
+    "secret": "2+MkZVWzoJLpm2Jc9RaJl1w3ptp6cx0aJQfxYU5EoVg0TIGEfznFF9jXkZgp6wJSqsZGKx7bQdaCY3XwPevH/A==",
+    "version": "1.234",
     "findSecret": [
         "_generateRequestPayloadSignature",
         "function(a){return Ca.substr(iS.encode(this._hash+'6AcvttbsrMlesmiqOhzHPKQz7mmt90+YC5CzkeOClZq1jtUWJdh5Xz/Vh6GFTwG4cVMPWmAr5jjMpgJwm1y5fA=='+a),1,10)}"
