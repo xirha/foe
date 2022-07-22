@@ -102,7 +102,8 @@ export class GbModule extends FoeService {
         return new Promise(async (resolve, reject) => {
             let requestData = self.parent.serverRequestBody("GreatBuildingsService", "getOtherPlayerOverview", [player.player_id]);
 
-            let response: Array<FoeResponseBody> = await self.parent.serverRequest(requestData);              
+            let response: Array<FoeResponseBody> = await self.parent.serverRequest(requestData);
+
             let buildings: Array<GreatBuilding> = self.parent.extractResponseData(requestData, response);
 
             if(fetchOnly)

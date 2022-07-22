@@ -117,6 +117,7 @@ export class FoeAgent {
         let signature: string = md5.hash(this.configuration.session + this.configuration.secret + bodyString).substr(0, 10);
         
         _headers["signature"] = signature;
+        _headers["content-length"] = bodyString.length;
         // _headers[":authority"] = "sk3.forgeofempires.com";
         // _headers[":path"] = url;
         // _headers[":method"] = "POST";
@@ -166,6 +167,7 @@ export class FoeAgent {
                         return reject(new Error(err));
                     } else {
                         let response = JSON.parse(result.toString());
+						// console.log(response);
                         self.catchRequestError(response[0]);
 
                         return resolve(response);
@@ -216,7 +218,7 @@ export class FoeAgent {
             requestData: data,
             requestClass: service,
             requestMethod: method,
-            requestId: 16
+            requestId: this.requestId++
         };
     }
 
